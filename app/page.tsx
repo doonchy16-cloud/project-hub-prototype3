@@ -1,6 +1,6 @@
-"use client";"use client";
+"use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ChangeEvent, type ReactNode } from "react";
 import {
   ArrowLeft,
   Bell,
@@ -27,6 +27,7 @@ import {
   Tag,
   User,
   Users,
+  type LucideIcon,
 } from "lucide-react";
 
 type ThemeMode = "light" | "dark";
@@ -78,13 +79,201 @@ type Question = {
   placeholder?: string;
 };
 
+type ThemeStyles = {
+  appBg: string;
+  panel: string;
+  card: string;
+  border: string;
+  text: string;
+  muted: string;
+  primary: string;
+  primaryText: string;
+  pill: string;
+  shadow: string;
+};
+
+const CONTINENTS = [
+  "Africa",
+  "Asia",
+  "Europe",
+  "North America",
+  "Oceania",
+  "South America",
+];
+
+const COUNTRIES = [
+  "Argentina",
+  "Australia",
+  "Austria",
+  "Belgium",
+  "Brazil",
+  "Canada",
+  "Chile",
+  "China",
+  "Colombia",
+  "Costa Rica",
+  "Czech Republic",
+  "Denmark",
+  "Egypt",
+  "Finland",
+  "France",
+  "Germany",
+  "Greece",
+  "India",
+  "Indonesia",
+  "Ireland",
+  "Israel",
+  "Italy",
+  "Japan",
+  "Kenya",
+  "Malaysia",
+  "Mexico",
+  "Morocco",
+  "Netherlands",
+  "New Zealand",
+  "Nigeria",
+  "Norway",
+  "Peru",
+  "Philippines",
+  "Poland",
+  "Portugal",
+  "Singapore",
+  "South Africa",
+  "South Korea",
+  "Spain",
+  "Sweden",
+  "Switzerland",
+  "Thailand",
+  "Turkey",
+  "United Arab Emirates",
+  "United Kingdom",
+  "United States",
+  "Uruguay",
+  "Vietnam",
+];
+
+const REGIONS = [
+  "Auckland",
+  "Bavaria",
+  "British Columbia",
+  "California",
+  "Catalonia",
+  "Colorado",
+  "Dubai",
+  "England",
+  "Florida",
+  "Gauteng",
+  "Hokkaido",
+  "Illinois",
+  "Île-de-France",
+  "Jalisco",
+  "Karnataka",
+  "Lagos",
+  "Lisbon District",
+  "Maharashtra",
+  "Metro Manila",
+  "Mexico City",
+  "New South Wales",
+  "New York",
+  "North Holland",
+  "Northern District",
+  "Ontario",
+  "Oregon",
+  "Queensland",
+  "Quebec",
+  "Rio de Janeiro",
+  "Santiago Metropolitan",
+  "Scotland",
+  "São Paulo",
+  "Texas",
+  "Tokyo",
+  "Victoria",
+  "Washington",
+  "Western Cape",
+  "Zurich",
+];
+
+const CITIES = [
+  "Amsterdam",
+  "Athens",
+  "Auckland",
+  "Austin",
+  "Bangkok",
+  "Barcelona",
+  "Beijing",
+  "Berlin",
+  "Bogotá",
+  "Boston",
+  "Brussels",
+  "Buenos Aires",
+  "Cape Town",
+  "Chicago",
+  "Copenhagen",
+  "Dallas",
+  "Denver",
+  "Dubai",
+  "Dublin",
+  "Edinburgh",
+  "Florence",
+  "Frankfurt",
+  "Hanoi",
+  "Ho Chi Minh City",
+  "Hong Kong",
+  "Houston",
+  "Istanbul",
+  "Jakarta",
+  "Jerusalem",
+  "Johannesburg",
+  "Joshua Tree",
+  "Kyoto",
+  "Lagos",
+  "Lisbon",
+  "London",
+  "Los Angeles",
+  "Madrid",
+  "Melbourne",
+  "Mexico City",
+  "Miami",
+  "Milan",
+  "Montreal",
+  "Moscow",
+  "Mumbai",
+  "Munich",
+  "Nairobi",
+  "New York City",
+  "Osaka",
+  "Paris",
+  "Perth",
+  "Portland",
+  "Prague",
+  "Rio de Janeiro",
+  "Rome",
+  "San Diego",
+  "San Francisco",
+  "Santiago",
+  "São Paulo",
+  "Seattle",
+  "Seoul",
+  "Singapore",
+  "Stockholm",
+  "Sydney",
+  "Tel Aviv",
+  "Tokyo",
+  "Toronto",
+  "Vancouver",
+  "Vienna",
+  "Warsaw",
+  "Washington, D.C.",
+  "Zurich",
+];
+
 const sharedProjectsSeed: SharedProject[] = [
   {
     id: 1,
     title: "San Diego Family Garden Co-op",
     creator: "Ava Chen",
     category: "Community Living",
-    location: "San Diego, California",
+    location: "San Diego, California, United States, North America",
     description:
       "A family-friendly garden and skills-sharing group focused on food growing, homeschooling meetups, and weekend build days.",
     tags: ["family", "gardening", "homeschool", "community"],
@@ -96,7 +285,7 @@ const sharedProjectsSeed: SharedProject[] = [
     title: "Joshua Tree Off-Grid Build Camp",
     creator: "Marcus Lee",
     category: "Off-Grid",
-    location: "Joshua Tree, California",
+    location: "Joshua Tree, California, United States, North America",
     description:
       "A hands-on off-grid project building solar-ready tiny structures, water systems, and a shared maker yard in the desert.",
     tags: ["off-grid", "solar", "building", "tiny home"],
@@ -108,7 +297,7 @@ const sharedProjectsSeed: SharedProject[] = [
     title: "Portland Creative Homestead Circle",
     creator: "Lina Patel",
     category: "Creative Community",
-    location: "Portland, Oregon",
+    location: "Portland, Oregon, United States, North America",
     description:
       "A small homestead network for artists, gardeners, and families who want shared meals, workshops, and creative studio days.",
     tags: ["art", "homestead", "families", "workshops"],
@@ -120,7 +309,7 @@ const sharedProjectsSeed: SharedProject[] = [
     title: "Austin Remote Work + Build Collective",
     creator: "Daniel Ross",
     category: "Hybrid Living",
-    location: "Austin, Texas",
+    location: "Austin, Texas, United States, North America",
     description:
       "A community for people balancing remote work with intentional living, weekend building projects, and shared land planning.",
     tags: ["remote work", "building", "land", "planning"],
@@ -132,7 +321,7 @@ const sharedProjectsSeed: SharedProject[] = [
     title: "Northern Arizona Learning Village",
     creator: "Sofia Alvarez",
     category: "Education",
-    location: "Flagstaff, Arizona",
+    location: "Flagstaff, Arizona, United States, North America",
     description:
       "A learning-focused village idea for families who want outdoor education, nature-based routines, and skill-sharing pods.",
     tags: ["education", "nature", "families", "village"],
@@ -144,7 +333,7 @@ const sharedProjectsSeed: SharedProject[] = [
     title: "Northern California Regenerative Farm Hub",
     creator: "Priya Singh",
     category: "Regenerative Farming",
-    location: "Mendocino County, California",
+    location: "San Francisco, California, United States, North America",
     description:
       "A regenerative farm startup looking for growers, builders, and families interested in long-term community life on shared land.",
     tags: ["farming", "regenerative", "land", "families"],
@@ -163,14 +352,15 @@ const myProjectCategories = [
   "General",
 ] as const;
 
-const baseNavItems: { key: Exclude<PageKey, "questionnaire" | "project_detail">; label: string }[] = [
-  { key: "home", label: "Home" },
-  { key: "favorites", label: "Favorites" },
-  { key: "projects", label: "My Projects" },
-  { key: "settings", label: "Settings" },
-  { key: "account_info", label: "Account Info" },
-  { key: "answers_summary", label: "Answers Summary" },
-];
+const navItems: { key: Exclude<PageKey, "questionnaire" | "project_detail">; label: string; icon: LucideIcon }[] =
+  [
+    { key: "home", label: "Home", icon: House },
+    { key: "favorites", label: "Favorites", icon: Heart },
+    { key: "projects", label: "My Projects", icon: FolderKanban },
+    { key: "settings", label: "Settings", icon: Settings },
+    { key: "account_info", label: "Account Info", icon: User },
+    { key: "answers_summary", label: "Answers Summary", icon: Compass },
+  ];
 
 const categoryOrder = [
   "Status",
@@ -352,19 +542,6 @@ function getAdaptiveQuestions(currentLocation: string, answers: Record<string, s
   ];
 }
 
-type ThemeStyles = {
-  appBg: string;
-  panel: string;
-  card: string;
-  border: string;
-  text: string;
-  muted: string;
-  primary: string;
-  primaryText: string;
-  pill: string;
-  shadow: string;
-};
-
 function ThemeButton({
   children,
   active,
@@ -373,7 +550,7 @@ function ThemeButton({
   className = "",
   type = "button",
 }: {
-  children: React.ReactNode;
+  children: ReactNode;
   active?: boolean;
   onClick?: () => void;
   themeStyles: ThemeStyles;
@@ -404,7 +581,7 @@ function ThemeInput({
   multiline = false,
 }: {
   value: string;
-  onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+  onChange: (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   placeholder?: string;
   themeStyles: ThemeStyles;
   multiline?: boolean;
@@ -433,7 +610,7 @@ function InfoCard({
   themeStyles,
   className = "",
 }: {
-  children: React.ReactNode;
+  children: ReactNode;
   themeStyles: ThemeStyles;
   className?: string;
 }) {
@@ -448,6 +625,40 @@ function InfoCard({
     >
       {children}
     </div>
+  );
+}
+
+function ThemeSelect({
+  value,
+  onChange,
+  options,
+  placeholder,
+  themeStyles,
+}: {
+  value: string;
+  onChange: (e: ChangeEvent<HTMLSelectElement>) => void;
+  options: string[];
+  placeholder: string;
+  themeStyles: ThemeStyles;
+}) {
+  return (
+    <select
+      value={value}
+      onChange={onChange}
+      className="w-full rounded-2xl border px-4 py-3 text-sm outline-none"
+      style={{
+        backgroundColor: themeStyles.panel,
+        color: themeStyles.text,
+        borderColor: themeStyles.border,
+      }}
+    >
+      <option value="">{placeholder}</option>
+      {options.map((option) => (
+        <option key={option} value={option}>
+          {option}
+        </option>
+      ))}
+    </select>
   );
 }
 
@@ -468,7 +679,12 @@ export default function Page() {
 
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
-  const [currentLocation, setCurrentLocation] = useState("");
+
+  const [selectedContinent, setSelectedContinent] = useState("");
+  const [selectedCountry, setSelectedCountry] = useState("");
+  const [selectedRegion, setSelectedRegion] = useState("");
+  const [selectedCity, setSelectedCity] = useState("");
+
   const [cardName, setCardName] = useState("");
   const [cardNumber, setCardNumber] = useState("");
   const [expiry, setExpiry] = useState("");
@@ -518,16 +734,31 @@ export default function Page() {
   const mutedTextClass = isDark ? "text-slate-300" : "text-slate-600";
   const placeholderClass = isDark ? "placeholder:text-slate-500" : "placeholder:text-slate-400";
 
+  const currentLocation = useMemo(() => {
+    if (!selectedCity || !selectedRegion || !selectedCountry || !selectedContinent) return "";
+    return `${selectedCity}, ${selectedRegion}, ${selectedCountry}, ${selectedContinent}`;
+  }, [selectedCity, selectedRegion, selectedCountry, selectedContinent]);
+
+  const signInReady =
+    email.trim() !== "" &&
+    phone.trim() !== "" &&
+    selectedContinent !== "" &&
+    selectedCountry !== "" &&
+    selectedRegion !== "" &&
+    selectedCity !== "";
+
   const adaptiveQuestions = useMemo<Question[]>(
     () => getAdaptiveQuestions(currentLocation, questionnaireAnswers),
     [currentLocation, questionnaireAnswers]
   );
 
-  const currentQuestion = adaptiveQuestions[questionnaireStep];
+  const currentQuestion = adaptiveQuestions[questionnaireStep] ?? adaptiveQuestions[0];
+
   const answeredCount = adaptiveQuestions.filter((question) => {
     const value = questionnaireAnswers[question.id];
     return String(value || "").trim().length > 0;
   }).length;
+
   const questionnaireComplete = answeredCount === adaptiveQuestions.length;
   const questionnaireProgressPercent = Math.round((answeredCount / adaptiveQuestions.length) * 100);
 
@@ -706,6 +937,7 @@ export default function Page() {
                 {project.category}
               </div>
             </div>
+
             <button
               onClick={(event) => {
                 event.stopPropagation();
@@ -763,8 +995,8 @@ export default function Page() {
             <div className="space-y-4">
               <h1 className="text-5xl font-semibold tracking-tight">Sign in and set your location.</h1>
               <p className={`max-w-xl text-lg leading-8 ${mutedTextClass}`}>
-                Email, phone, and current location are required before entering the app. The full adaptive questionnaire
-                now lives in Account Info.
+                Email, phone, and location are required before entering the app. The account questionnaire now lives in
+                Account Info after sign-in.
               </p>
             </div>
 
@@ -791,7 +1023,7 @@ export default function Page() {
               <div>
                 <h2 className="text-3xl font-semibold">Required account details</h2>
                 <p className={`mt-2 text-sm leading-6 ${mutedTextClass}`}>
-                  The account questionnaire is no longer before entry. It is now managed under Account Info after sign-in.
+                  Location is now captured with required dropdowns for continent, country, state/region, and city.
                 </p>
               </div>
 
@@ -825,18 +1057,58 @@ export default function Page() {
                 </div>
 
                 <div>
-                  <label className="mb-2 block text-sm font-medium">Current location</label>
-                  <div className="relative">
-                    <MapPin className={`absolute left-4 top-3.5 h-4 w-4 ${mutedTextClass}`} />
-                    <input
-                      value={currentLocation}
-                      onChange={(e) => setCurrentLocation(e.target.value)}
-                      placeholder="San Diego, California"
-                      className={`w-full rounded-2xl border py-3 pl-11 pr-4 text-sm outline-none ${placeholderClass}`}
-                      style={{ backgroundColor: themeStyles.panel, color: themeStyles.text, borderColor: themeStyles.border }}
-                    />
-                  </div>
+                  <label className="mb-2 block text-sm font-medium">Continent</label>
+                  <ThemeSelect
+                    value={selectedContinent}
+                    onChange={(e) => setSelectedContinent(e.target.value)}
+                    options={CONTINENTS}
+                    placeholder="Select continent"
+                    themeStyles={themeStyles}
+                  />
                 </div>
+
+                <div>
+                  <label className="mb-2 block text-sm font-medium">Country</label>
+                  <ThemeSelect
+                    value={selectedCountry}
+                    onChange={(e) => setSelectedCountry(e.target.value)}
+                    options={COUNTRIES}
+                    placeholder="Select country"
+                    themeStyles={themeStyles}
+                  />
+                </div>
+
+                <div>
+                  <label className="mb-2 block text-sm font-medium">State / Province / Region</label>
+                  <ThemeSelect
+                    value={selectedRegion}
+                    onChange={(e) => setSelectedRegion(e.target.value)}
+                    options={REGIONS}
+                    placeholder="Select state / region"
+                    themeStyles={themeStyles}
+                  />
+                </div>
+
+                <div>
+                  <label className="mb-2 block text-sm font-medium">City</label>
+                  <ThemeSelect
+                    value={selectedCity}
+                    onChange={(e) => setSelectedCity(e.target.value)}
+                    options={CITIES}
+                    placeholder="Select city"
+                    themeStyles={themeStyles}
+                  />
+                </div>
+
+                {currentLocation && (
+                  <div
+                    className="rounded-2xl border p-4 text-sm"
+                    style={{ backgroundColor: themeStyles.pill, borderColor: themeStyles.border, color: themeStyles.text }}
+                  >
+                    <p className="font-medium">Saved location preview</p>
+                    <p className={`mt-2 ${mutedTextClass}`}>{currentLocation}</p>
+                  </div>
+                )}
               </div>
 
               <div className="rounded-3xl border p-4" style={{ backgroundColor: themeStyles.panel, borderColor: themeStyles.border }}>
@@ -872,6 +1144,7 @@ export default function Page() {
                 themeStyles={themeStyles}
                 active
                 onClick={() => {
+                  if (!signInReady) return;
                   addActivity("Signed in to Prototype 3");
                   setAppStage("app");
                   setPage("home");
@@ -907,7 +1180,7 @@ export default function Page() {
                   Question {questionnaireStep + 1} of {adaptiveQuestions.length}
                 </h1>
                 <p className={`mt-2 text-sm leading-6 ${mutedTextClass}`}>
-                  Adaptive one-at-a-time flow based on your previous answers and your current location:{" "}
+                  Adaptive one-at-a-time flow based on your previous answers and your location:{" "}
                   {currentLocation || "not set yet"}.
                 </p>
               </div>
@@ -936,7 +1209,7 @@ export default function Page() {
             <div className="mt-6">
               {question.type === "select" ? (
                 <div className="grid gap-3 md:grid-cols-2">
-                  {question.options?.map((option) => {
+                  {(question.options || []).map((option) => {
                     const active = currentValue === option;
                     return (
                       <button
@@ -1023,23 +1296,28 @@ export default function Page() {
           </div>
 
           <div className="space-y-2">
-            {baseNavItems.map((item) => (
-              <button
-                key={item.key}
-                onClick={() => {
-                  setPage(item.key);
-                  setProfileMenuOpen(false);
-                }}
-                className="flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-left transition"
-                style={{
-                  backgroundColor: page === item.key ? themeStyles.primary : "transparent",
-                  color: page === item.key ? themeStyles.primaryText : themeStyles.text,
-                  border: `1px solid ${page === item.key ? themeStyles.primary : "transparent"}`,
-                }}
-              >
-                <span>{item.label}</span>
-              </button>
-            ))}
+            {navItems.map((item) => {
+              const Icon = item.icon;
+              const active = page === item.key;
+              return (
+                <button
+                  key={item.key}
+                  onClick={() => {
+                    setPage(item.key);
+                    setProfileMenuOpen(false);
+                  }}
+                  className="flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-left transition"
+                  style={{
+                    backgroundColor: active ? themeStyles.primary : "transparent",
+                    color: active ? themeStyles.primaryText : themeStyles.text,
+                    border: `1px solid ${active ? themeStyles.primary : "transparent"}`,
+                  }}
+                >
+                  <Icon className="h-4 w-4" />
+                  <span>{item.label}</span>
+                </button>
+              );
+            })}
           </div>
 
           <InfoCard themeStyles={themeStyles} className="mt-6 p-5">
